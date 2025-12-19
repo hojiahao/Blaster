@@ -3,3 +3,6 @@
 #include "D:/Unreal Projects/Blaster/Plugins/MultiplayerSessions/Intermediate/Build/Win64/UnrealEditor/Inc/MultiplayerSessions/UHT/MultiplayerSessions.init.gen.cpp"
 #include "D:/Unreal Projects/Blaster/Plugins/MultiplayerSessions/Intermediate/Build/Win64/UnrealEditor/Inc/MultiplayerSessions/UHT/MultiplayerSessionsSubsystem.gen.cpp"
 #include "D:/Unreal Projects/Blaster/Plugins/MultiplayerSessions/Intermediate/Build/Win64/x64/UnrealEditor/Development/MultiplayerSessions/PerModuleInline.gen.cpp"
+#include "D:/Unreal Projects/Blaster/Plugins/MultiplayerSessions/Source/MultiplayerSessions/Private/Menu.cpp"
+#include "D:/Unreal Projects/Blaster/Plugins/MultiplayerSessions/Source/MultiplayerSessions/Private/MultiplayerSessions.cpp"
+#include "D:/Unreal Projects/Blaster/Plugins/MultiplayerSessions/Source/MultiplayerSessions/Private/MultiplayerSessionsSubsystem.cpp"
