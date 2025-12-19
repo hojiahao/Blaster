@@ -8,6 +8,14 @@ Content/*
 DerivedDataCache/*
 Intermediate/*
 Saved/*
+**/Mannequin
+**/FirstPerson
+**/FirstPersonBP
+**/LearningKit_Games
+**/FPS_Weapon_Bundle
+**/AnimStarterPack
+**/QuantumCharacter
+**/UtopianCity
 .vs
 .vscode
 *.VC.db
