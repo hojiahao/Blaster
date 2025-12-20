@@ -17,6 +17,9 @@ Saved/*
 **/QuantumCharacter
 **/UtopianCity
 **/Animations
+**/StarterContent
+**/MarketplaceAssets
+**/BlasterMapMeshes
 .vs
 .vscode
 *.VC.db
