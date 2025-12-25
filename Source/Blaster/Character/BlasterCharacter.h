@@ -34,6 +34,7 @@ protected:
 	void Turn(float Value);
 	void LookUp(float Value);
 	void EuipButtonPressed();
+	void CrouchButtonPressed();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
