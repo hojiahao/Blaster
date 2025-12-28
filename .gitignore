@@ -1,27 +1,11 @@
-# ========================================
-# Unreal Engine 5 Specific
-# ========================================
+Binaries
+DerivedDataCache
+Intermediate
+Saved
+Build
 
-Binaries/*
-Build/*
-Content/*
-DerivedDataCache/*
-Intermediate/*
-Saved/*
-**/Mannequin
-**/FirstPerson
-**/FirstPersonBP
-**/LearningKit_Games
-**/FPS_Weapon_Bundle
-**/AnimStarterPack
-**/QuantumCharacter
-**/UtopianCity
-**/Animations
-**/StarterContent
-**/MarketplaceAssets
-**/BlasterMapMeshes
-.vs
 .vscode
+.vs
 *.VC.db
 *.opensdf
 *.opendb
@@ -30,4 +14,3 @@ Saved/*
 *.suo
 *.xcodeproj
 *.xcworkspace
-*.uproject
