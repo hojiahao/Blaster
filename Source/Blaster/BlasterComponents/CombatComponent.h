@@ -62,6 +62,12 @@ private:
 
 	bool bFireButtonPressed;
 
+	/**
+	* HUD and crosshairs
+	*/
+	float CrosshairVelocityFactor;
+	float CrosshairInAirFactor;
+
 public:	
 	
 };
