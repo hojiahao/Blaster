@@ -21,7 +21,7 @@
 
 ## 项目结构
 
-```
+```cpp
 Source/Blaster/
 ├── Character/
 │   ├── BlasterCharacter.cpp      # 主角色 - 输入、相机、Aim Offset
