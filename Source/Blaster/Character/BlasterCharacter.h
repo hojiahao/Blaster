@@ -6,7 +6,11 @@
 #include "GameFramework/Character.h"
 #include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "Blaster/Interfaces/InteractWithCrosshairsInterface.h"
+#include "InputActionValue.h"
 #include "BlasterCharacter.generated.h"
+
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter, public IInteractWithCrosshairsInterface
@@ -25,25 +29,30 @@ public:
 	void PlayFireMontage(bool bAiming);
 
 	virtual void OnRep_ReplicatedMovement() override;
-
+	void Elim();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void MoveForward(float Value);
-	void MoveRight(float Value);
-	void Turn(float Value);
-	void LookUp(float Value);
-	void EuipButtonPressed();
+	// Enhanced Input - Move
+	void Move(const FInputActionValue & Value);
+	// Enhanced Input - Look
+	void Look(const FInputActionValue & Value);
+	// Enhanced Input - Equip
+	void EquipButtonPressed();
+	// Enhanced Input - Crouch
 	void CrouchButtonPressed();
+	// Enhanced Input - Aim
 	void AimButtonPressed();
 	void AimButtonReleased();
+	// Enhanced Input - Fire
+	void FireButtonPressed();
+	void FireButtonReleased();
+	// Enhanced Input - Jump
+	virtual void Jump() override;
 	void AimOffset(float DeltaTime);
 	void CaculateAO_Pitch();
 	void SimProxiesTurn();
-	virtual void Jump() override;
-	void FireButtonPressed();
-	void FireButtonReleased();
 	void PlayHitReactMontage();
 
 	UFUNCTION()
@@ -51,6 +60,32 @@ protected:
 	void UpdateHUDHealth();
 
 private:
+	// Enhanced Input - Mapping Context
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputMappingContext * BlasterMappingContext;
+
+	// Enhanced Input Actions
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction * MoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction * LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction * JumpAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction * EquipAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction * CrouchAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction * AimAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction * FireAction;
+
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class USpringArmComponent* CameraBoom;
 

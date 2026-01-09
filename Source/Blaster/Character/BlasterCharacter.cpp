@@ -14,6 +14,9 @@
 #include "BlasterAnimInstance.h"
 #include "Blaster/Blaster.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "Blaster/GameMode/BlasterGameMode.h"
 
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
@@ -56,25 +59,78 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABlasterCharacter::Jump);
+	// Set up Enhanced Input bindings
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast< UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		// Move
+		if (MoveAction)
+		{
+			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Move);
+		}
+	
+		// Look
+		if (LookAction)
+		{
+			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Look);
+		}
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ABlasterCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ABlasterCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("Turn", this, &ABlasterCharacter::Turn);
-	PlayerInputComponent->BindAxis("LookUp", this, &ABlasterCharacter::LookUp);
+		// Jump                                                                                                                                                 
+		if (JumpAction)
+		{
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ABlasterCharacter::Jump);
+			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		}
 
-	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EuipButtonPressed);
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABlasterCharacter::FireButtonPressed);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABlasterCharacter::FireButtonReleased);
+		// Equip                                                                                                                                                
+		if (EquipAction)
+		{
+			EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Started, this, &ABlasterCharacter::EquipButtonPressed);
+		}
+
+		// Crouch                                                                                                                                               
+		if (CrouchAction)
+		{
+			EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ABlasterCharacter::CrouchButtonPressed);
+		}
+
+		// Aim                                                                                                                                                  
+		if (AimAction)
+		{
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &ABlasterCharacter::AimButtonPressed);
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &ABlasterCharacter::AimButtonReleased);
+		}
+
+		// Fire                                                                                                                                                 
+		if (FireAction)
+		{
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &ABlasterCharacter::FireButtonPressed);
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &ABlasterCharacter::FireButtonReleased);
+		}
+	}
+}
+
+void ABlasterCharacter::Elim()
+{
+
 }
 
 // Called when the game starts or when spawned
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Add Enhanced Input Mapping Context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			if (BlasterMappingContext)
+			{
+				Subsystem->AddMappingContext(BlasterMappingContext, 1);
+			}
+		}
+	}
+
 	UpdateHUDHealth();
 	if (HasAuthority())
 	{
@@ -82,43 +138,42 @@ void ABlasterCharacter::BeginPlay()
 	}
 }
 
-void ABlasterCharacter::MoveForward(float Value)
+void ABlasterCharacter::Move(const FInputActionValue& Value)
 {
-	if (Controller != nullptr && Value != 0.0f)
+	// Input is a Vector2D                                                                                                                                    
+	const FVector2D MovementVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+
+		// Get forward vector                                                                                                                                   
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		// Get right vector                                                                                                                                     
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		// Add movement                                                                                                                                         
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
 
-void ABlasterCharacter::MoveRight(float Value)
+void ABlasterCharacter::Look(const FInputActionValue& Value)
 {
-	if (Controller != nullptr && Value != 0.0f)
+	// Input is a Vector2D                                                                                                                                    
+	const FVector2D LookAxisVector = Value.Get<FVector2D>();
+	
+	if (Controller != nullptr)
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		// get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(Direction, Value);
+		// Add yaw and pitch input to controller                                                                                                                
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
 
-void ABlasterCharacter::Turn(float Value)
-{
-	AddControllerYawInput(Value);
-}
-
-void ABlasterCharacter::LookUp(float Value)
-{
-	AddControllerPitchInput(Value);
-}
-
-void ABlasterCharacter::EuipButtonPressed()
+void ABlasterCharacter::EquipButtonPressed()
 {
 	if (Combat)
 	{
@@ -436,6 +491,18 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	UpdateHUDHealth();
 	PlayHitReactMontage();
+
+
+	if (Health == 0.f)
+	{
+		ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+		if (BlasterGameMode)
+		{
+			BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
+			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
+		}
+	}
 }
 
 void ABlasterCharacter::UpdateHUDHealth()
