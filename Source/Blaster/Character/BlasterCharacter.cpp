@@ -109,9 +109,10 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	}
 }
 
-void ABlasterCharacter::Elim()
+void ABlasterCharacter::Elim_Implementation()
 {
-
+	bElimmed = true;
+	PlayElimMontage();
 }
 
 // Called when the game starts or when spawned
@@ -135,6 +136,15 @@ void ABlasterCharacter::BeginPlay()
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
+	}
+}
+
+void ABlasterCharacter::PlayElimMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ElimMontage)
+	{
+		AnimInstance->Montage_Play(ElimMontage);
 	}
 }
 
