@@ -29,6 +29,8 @@ AWeapon::AWeapon()
 	AreaSphere->SetupAttachment(RootComponent);
 	AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AreaSphere->SetHiddenInGame(true);
+	AreaSphere->SetVisibility(false);
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	PickupWidget->SetupAttachment(RootComponent);
