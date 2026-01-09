@@ -18,5 +18,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 private:
-	class ABlasterHUD* BlasterHUD;
+	UPROPERTY()
+	TObjectPtr<class ABlasterHUD> BlasterHUD;
 };

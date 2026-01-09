@@ -29,21 +29,22 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
-	class UBoxComponent* CollisionBox;
+	TObjectPtr<class UBoxComponent> CollisionBox;
 
 	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementComponent;
+	TObjectPtr<class UProjectileMovementComponent> ProjectileMovementComponent;
 
 	UPROPERTY(EditAnywhere)
-	class UParticleSystem* Tracer;
+	TObjectPtr<class UParticleSystem> Tracer;
 
-	class UParticleSystemComponent* TracerComponent;
-
-	UPROPERTY(EditAnywhere)
-	UParticleSystem* ImpactParticles;
+	UPROPERTY()
+	TObjectPtr<class UParticleSystemComponent> TracerComponent;
 
 	UPROPERTY(EditAnywhere)
-	class USoundCue* ImpactSound;
+	TObjectPtr<UParticleSystem> ImpactParticles;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USoundCue> ImpactSound;
 
 public:	
 

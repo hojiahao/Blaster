@@ -47,12 +47,17 @@ protected:
 	void SetHUDCrosshairs(float DeltaTime);
 
 private:
-	class ABlasterCharacter* Character;
-	class ABlasterPlayerController* Controller;
-	class ABlasterHUD* HUD;
+	UPROPERTY()
+	TObjectPtr<class ABlasterCharacter> Character;
+
+	UPROPERTY()
+	TObjectPtr<class ABlasterPlayerController> Controller;
+
+	UPROPERTY()
+	TObjectPtr<class ABlasterHUD> HUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
-	AWeapon* EquippedWeapon;
+	TObjectPtr<AWeapon> EquippedWeapon;
 
 	UPROPERTY(Replicated)
 	bool bAiming;

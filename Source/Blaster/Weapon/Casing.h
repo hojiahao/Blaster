@@ -13,13 +13,13 @@ class BLASTER_API ACasing : public AActor
 	
 private:
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* CasingMesh;
+	TObjectPtr<UStaticMeshComponent> CasingMesh;
 
 	UPROPERTY(EditAnywhere)
 	float ShellEjectionImpulse;
 
 	UPROPERTY(EditAnywhere)
-	class USoundCue* ShellSound;
+	TObjectPtr<class USoundCue> ShellSound;
 
 public:	
 	// Sets default values for this actor's properties

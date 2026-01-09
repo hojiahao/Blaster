@@ -11,13 +11,23 @@ struct FHUDPackage
 {
 	GENERATED_BODY()
 public:
-	class UTexture2D* CrosshairsCenter;
-	UTexture2D* CrosshairsLeft;
-	UTexture2D* CrosshairsRight;
-	UTexture2D* CrosshairsTop;
-	UTexture2D* CrosshairsBottom;
-	float CrosshairSpread;
-	FLinearColor CrosshairsColor;
+	UPROPERTY()
+	TObjectPtr<class UTexture2D> CrosshairsCenter;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> CrosshairsLeft;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> CrosshairsRight;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> CrosshairsTop;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> CrosshairsBottom;
+
+	float CrosshairSpread = 0.f;
+	FLinearColor CrosshairsColor = FLinearColor::White;
 };
 
 /**
@@ -32,7 +42,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
-	class UCharacterOverlay* CharacterOverlay;
+	
+	UPROPERTY()
+	TObjectPtr<class UCharacterOverlay> CharacterOverlay;
 
 protected:
 	virtual void BeginPlay() override;
