@@ -199,6 +199,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class USoundCue> ElimBotSound;
 
+	UPROPERTY()
 	TObjectPtr<class ABlasterPlayerState> BlasterPlayerState;
 public:	
 	void SetOverlappingWeapon(AWeapon* Weapon);

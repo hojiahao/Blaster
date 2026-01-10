@@ -27,7 +27,10 @@ public:
 	void AddToScore(float ScoreAmount);
 	void AddToDefeats(int32 DefeatsAmount);
 private:
+	UPROPERTY()
 	TObjectPtr<class ABlasterCharacter> Character;
+
+	UPROPERTY()
 	TObjectPtr<class ABlasterPlayerController> Controller;
 
 	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
