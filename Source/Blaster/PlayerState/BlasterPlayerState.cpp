@@ -15,16 +15,10 @@ void ABlasterPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 void ABlasterPlayerState::OnRep_Score()
 {
 	Super::OnRep_Score();
-	if (Character == nullptr)
-	{
-		Character = Cast<ABlasterCharacter>(GetPawn());
-	}
+	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character.Get();
 	if (Character)
 	{
-		if (Controller == nullptr)
-		{
-			Controller = Cast<ABlasterPlayerController>(Character->Controller);
-		}
+		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller.Get();
 		if (Controller)
 		{
 			Controller->SetHUDScore(GetScore());
@@ -34,16 +28,10 @@ void ABlasterPlayerState::OnRep_Score()
 
 void ABlasterPlayerState::OnRep_Defeats()
 {
-	if (Character == nullptr)
-	{
-		Character = Cast<ABlasterCharacter>(GetPawn());
-	}
+	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character.Get();
 	if (Character && Character->Controller)
 	{
-		if (Controller == nullptr)
-		{
-			Controller = Cast<ABlasterPlayerController>(Character->Controller);
-		}
+		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller.Get();
 		if (Controller)
 		{
 			Controller->SetHUDDefeats(Defeats);
@@ -54,16 +42,10 @@ void ABlasterPlayerState::OnRep_Defeats()
 void ABlasterPlayerState::AddToScore(float ScoreAmount)
 {
 	SetScore(GetScore() + ScoreAmount);
-	if (Character == nullptr)
-	{
-		Character = Cast<ABlasterCharacter>(GetPawn());
-	}
+	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character.Get();
 	if (Character)
 	{
-		if (Controller == nullptr)
-		{
-			Controller = Cast<ABlasterPlayerController>(Character->Controller);
-		}
+		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller.Get();
 		if (Controller)
 		{
 			Controller->SetHUDScore(GetScore());
@@ -74,16 +56,10 @@ void ABlasterPlayerState::AddToScore(float ScoreAmount)
 void ABlasterPlayerState::AddToDefeats(int32 DefeatsAmount)
 {
 	Defeats += DefeatsAmount;
-	if (Character == nullptr)
-	{
-		Character = Cast<ABlasterCharacter>(GetPawn());
-	}
+	Character = Character == nullptr ? Cast<ABlasterCharacter>(GetPawn()) : Character.Get();
 	if (Character && Character->Controller)
 	{
-		if (Controller == nullptr)
-		{
-			Controller = Cast<ABlasterPlayerController>(Character->Controller);
-		}
+		Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller.Get();
 		if (Controller)
 		{
 			Controller->SetHUDDefeats(Defeats);
