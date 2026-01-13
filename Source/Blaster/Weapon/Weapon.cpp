@@ -90,6 +90,20 @@ void AWeapon::OnRep_WeaponState()
 	}
 }
 
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+	if (Owner == nullptr)
+	{
+		BlasterOwnerCharacter = nullptr;
+		BlasterOwnerController = nullptr;
+	}
+	else
+	{
+		SetHUDAmmo();
+	}
+}
+
 void AWeapon::OnRep_Ammo()
 {
 	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter.Get();
@@ -98,7 +112,7 @@ void AWeapon::OnRep_Ammo()
 
 void AWeapon::SpendRound()
 {
-	--Ammo;
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
 	SetHUDAmmo();
 }
 
@@ -138,20 +152,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWeapon, WeaponState);
 	DOREPLIFETIME(AWeapon, Ammo);
-}
-
-void AWeapon::OnRep_Owner()
-{
-	Super::OnRep_Owner();
-	if (Owner == nullptr)
-	{
-		BlasterOwnerCharacter = nullptr;
-		BlasterOwnerController = nullptr;
-	}
-	else
-	{
-		SetHUDAmmo();
-	}
 }
 
 void AWeapon::SetHUDAmmo()
@@ -209,4 +209,9 @@ void AWeapon::Dropped()
 	SetOwner(nullptr);
 	BlasterOwnerCharacter = nullptr;
 	BlasterOwnerController = nullptr;
+}
+
+bool AWeapon::IsEmpty()
+{
+	return Ammo <= 0;
 }
