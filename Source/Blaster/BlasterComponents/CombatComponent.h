@@ -43,10 +43,10 @@ protected:
 	void Fire();
 
 	UFUNCTION(Server, Reliable)
-	void ServerFire(const FVector_NetQuantize& TracerHitTarget);
+	void ServerFire(const FVector_NetQuantize& TraceHitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire(const FVector_NetQuantize& TracerHitTarget);
+	void MulticastFire(const FVector_NetQuantize& TraceHitTarget);
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
