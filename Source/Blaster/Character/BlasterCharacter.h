@@ -28,6 +28,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bAiming);
+	void PlayReloadMontage();
 	void PlayElimMontage();
 	virtual void OnRep_ReplicatedMovement() override;
 
@@ -48,6 +49,8 @@ protected:
 	void EquipButtonPressed();
 	// Enhanced Input - Crouch
 	void CrouchButtonPressed();
+	// Enhanced Input - Reload
+	void ReloadButtonPressed();
 	// Enhanced Input - Aim
 	void AimButtonPressed();
 	void AimButtonReleased();
@@ -93,6 +96,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> FireAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ReloadAction;
+
 	// FPS Camera - attached directly to capsule component
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	TObjectPtr<class UCameraComponent> FollowCamera;
@@ -120,8 +126,15 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 
+	/**
+	* Animation montages
+	*/
+
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TObjectPtr<class UAnimMontage> FireWeaponMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	TObjectPtr<UAnimMontage> ReloadMontage;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TObjectPtr<class UAnimMontage> HitReactMontage;
