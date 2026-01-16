@@ -48,6 +48,14 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UCharacterOverlay> CharacterOverlay;
 
+	UPROPERTY(EditAnywhere, Category = "Announcements")
+	TSubclassOf<UUserWidget> AnnouncementClass;
+
+	UPROPERTY()
+	TObjectPtr<class UAnnouncement> Announcement;
+
+	void AddAnnouncement();
+
 protected:
 	virtual void BeginPlay() override;
 
