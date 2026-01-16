@@ -302,6 +302,15 @@ void ABlasterPlayerController::OnMatchStateSet(FName State)
 	{
 		HandleCooldown();
 	}
+	else if (MatchState == MatchState::WaitingToStart)
+	{
+		// FPS Multiplayer: Ensure all clients show warmup announcement
+		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD.Get();
+		if (BlasterHUD && BlasterHUD->Announcement == nullptr)
+		{
+			BlasterHUD->AddAnnouncement();
+		}
+	}
 }
 
 void ABlasterPlayerController::OnRep_MatchState()
@@ -313,6 +322,15 @@ void ABlasterPlayerController::OnRep_MatchState()
 	else if (MatchState == MatchState::Cooldown)
 	{
 		HandleCooldown();
+	}
+	else if (MatchState == MatchState::WaitingToStart)
+	{
+		// FPS Multiplayer: Ensure all clients show warmup announcement on replication
+		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD.Get();
+		if (BlasterHUD && BlasterHUD->Announcement == nullptr)
+		{
+			BlasterHUD->AddAnnouncement();
+		}
 	}
 }
 
@@ -334,7 +352,18 @@ void ABlasterPlayerController::HandleCooldown()
 	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD.Get();
 	if (BlasterHUD)
 	{
-		BlasterHUD->CharacterOverlay->RemoveFromParent();
+		// FPS: Safely remove character overlay if it exists
+		if (BlasterHUD->CharacterOverlay)
+		{
+			BlasterHUD->CharacterOverlay->RemoveFromParent();
+		}
+
+		// Add announcement if it doesn't exist
+		if (BlasterHUD->Announcement == nullptr)
+		{
+			BlasterHUD->AddAnnouncement();
+		}
+
 		bool bHUDValid = BlasterHUD->Announcement &&
 			BlasterHUD->Announcement->AnnouncementText &&
 			BlasterHUD->Announcement->InfoText;

@@ -30,8 +30,12 @@ AWeapon::AWeapon()
 	AreaSphere->SetupAttachment(RootComponent);
 	AreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// UE 5.7.1: Properly hide sphere in game and editor
 	AreaSphere->SetHiddenInGame(true);
-	AreaSphere->SetVisibility(false);
+	AreaSphere->SetVisibility(false, true); // Propagate to children
+	AreaSphere->bHiddenInGame = true;
+	AreaSphere->SetComponentTickEnabled(false);
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	PickupWidget->SetupAttachment(RootComponent);
@@ -48,9 +52,10 @@ void AWeapon::BeginPlay()
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSephereOverlap);
 		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
 	}
+	// FPS: Hide pickup widget by default, only show when player is nearby
 	if (PickupWidget)
 	{
-		PickupWidget->SetVisibility(true);
+		PickupWidget->SetVisibility(false);
 	}
 }
 
@@ -177,9 +182,19 @@ void AWeapon::ShowPickupWidget(bool bShowWidget)
 
 void AWeapon::Fire(const FVector& HitTarget)
 {
+	// UE 5.7.1: Use PlaySlotAnimationAsDynamicMontage instead of deprecated PlayAnimation
 	if (FireAnimation)
 	{
-		WeaponMesh->PlayAnimation(FireAnimation, false);
+		UAnimInstance* AnimInstance = WeaponMesh->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// Cast UAnimationAsset to UAnimSequenceBase for UE 5.7.1 API
+			UAnimSequenceBase* AnimSequence = Cast<UAnimSequenceBase>(FireAnimation);
+			if (AnimSequence)
+			{
+				AnimInstance->PlaySlotAnimationAsDynamicMontage(AnimSequence, FName("DefaultSlot"), 0.0f, 0.0f, 1.0f, 1, 0.0f, 0.0f);
+			}
+		}
 	}
 	if (CasingClass)
 	{

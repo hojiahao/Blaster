@@ -26,9 +26,9 @@
 // Sets default values
 ABlasterCharacter::ABlasterCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	// FPS Camera Setup - Camera attached directly to capsule (no spring arm for FPS)                                                                          
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FollowCamera->SetupAttachment(GetCapsuleComponent());
@@ -74,7 +74,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		{
 			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Move);
 		}
-	
+
 		// Look
 		if (LookAction)
 		{
@@ -156,13 +156,8 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	}
 	StartDissolve();
 
-	// Disable character movement
-	GetCharacterMovement()->DisableMovement();
-	GetCharacterMovement()->StopMovementImmediately();
-	if (BlasterPlayerController)
-	{
-		DisableInput(BlasterPlayerController);
-	}
+	// Disable gameplay
+	bDisableGameplay = true;
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -206,6 +201,10 @@ void ABlasterCharacter::Destroyed()
 	{
 		ElimBotComponent->DestroyComponent();
 	}
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
 }
 
 // Called when the game starts or when spawned
@@ -243,7 +242,8 @@ void ABlasterCharacter::PlayElimMontage()
 
 void ABlasterCharacter::Move(const FInputActionValue& Value)
 {
-	// Input is a Vector2D                                                                                                                                    
+	if (bDisableGameplay) return;
+	// Input is a Vector2D
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -252,12 +252,12 @@ void ABlasterCharacter::Move(const FInputActionValue& Value)
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		// Get forward vector                                                                                                                                   
+		// Get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		// Get right vector                                                                                                                                     
+		// Get right vector
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// Add movement                                                                                                                                         
+		// Add movement
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
@@ -265,12 +265,13 @@ void ABlasterCharacter::Move(const FInputActionValue& Value)
 
 void ABlasterCharacter::Look(const FInputActionValue& Value)
 {
-	// Input is a Vector2D                                                                                                                                    
+	if (bDisableGameplay) return;
+	// Input is a Vector2D
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
-	
+
 	if (Controller != nullptr)
 	{
-		// Add yaw and pitch input to controller                                                                                                                
+		// Add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
@@ -278,6 +279,7 @@ void ABlasterCharacter::Look(const FInputActionValue& Value)
 
 void ABlasterCharacter::EquipButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		if (HasAuthority())
@@ -293,6 +295,7 @@ void ABlasterCharacter::EquipButtonPressed()
 
 void ABlasterCharacter::CrouchButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -305,6 +308,7 @@ void ABlasterCharacter::CrouchButtonPressed()
 
 void ABlasterCharacter::ReloadButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->Reload();
@@ -313,6 +317,7 @@ void ABlasterCharacter::ReloadButtonPressed()
 
 void ABlasterCharacter::AimButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(true);
@@ -321,6 +326,7 @@ void ABlasterCharacter::AimButtonPressed()
 
 void ABlasterCharacter::AimButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(false);
@@ -388,7 +394,7 @@ void ABlasterCharacter::SimProxiesTurn()
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 		return;
 	}
-	
+
 	ProxyRotationLastFrame = ProxyRotation;
 	ProxyRotation = GetActorRotation();
 	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
@@ -414,6 +420,7 @@ void ABlasterCharacter::SimProxiesTurn()
 
 void ABlasterCharacter::Jump()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -426,6 +433,7 @@ void ABlasterCharacter::Jump()
 
 void ABlasterCharacter::FireButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->FireButtonPressed(true);
@@ -434,6 +442,7 @@ void ABlasterCharacter::FireButtonPressed()
 
 void ABlasterCharacter::FireButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
@@ -485,12 +494,10 @@ void ABlasterCharacter::TurnInPlace(float DeltaTime)
 
 void ABlasterCharacter::SetupFPSMeshVisibility()
 {
+	// FPS: Only update weapon visibility (character mesh visibility set in PostInitializeComponents)
 	if (!IsLocallyControlled()) return;
 
-	// FPS Mode: Always hide character mesh from owner's view                                                                                                 
-	GetMesh()->SetOwnerNoSee(true);
-	
-	// Weapon should be visible to owner in FPS mode (arms/weapon view)                                                                                       
+	// Weapon should be visible to owner in FPS mode
 	if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
 	{
 		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
@@ -524,6 +531,13 @@ void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bDisableGameplay)
+	{
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
+
 	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
 	{
 		AimOffset(DeltaTime);
@@ -547,6 +561,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ABlasterCharacter, Health);
+	DOREPLIFETIME(ABlasterCharacter, bDisableGameplay);
 }
 
 void ABlasterCharacter::PostInitializeComponents()
@@ -555,6 +570,12 @@ void ABlasterCharacter::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->Character = this;
+	}
+
+	// FPS: Set up mesh visibility once during initialization
+	if (IsLocallyControlled())
+	{
+		GetMesh()->SetOwnerNoSee(true);
 	}
 }
 
