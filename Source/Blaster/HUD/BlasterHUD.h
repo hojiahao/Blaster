@@ -42,13 +42,14 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> CharacterOverlayClass;
+
+	void AddCharacterOverlay();
 	
 	UPROPERTY()
 	TObjectPtr<class UCharacterOverlay> CharacterOverlay;
 
 protected:
 	virtual void BeginPlay() override;
-	void AddCharacterOverlay();
 
 private:
 	FHUDPackage HUDPackage;
