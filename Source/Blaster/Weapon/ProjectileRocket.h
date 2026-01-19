@@ -35,6 +35,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundAttenuation> LoopingSoundAttenuation;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class URocketMovementComponent> RocketMovementComponent;
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> RocketMesh;

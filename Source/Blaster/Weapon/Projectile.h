@@ -36,10 +36,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UBoxComponent> CollisionBox;
 
-private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UProjectileMovementComponent> ProjectileMovementComponent;
-
+private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UParticleSystem> Tracer;
 
