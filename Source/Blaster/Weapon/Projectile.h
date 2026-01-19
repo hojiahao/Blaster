@@ -27,25 +27,24 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float Damage = 20.f;
 
-private:
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* ImpactParticles;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ImpactSound;
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UBoxComponent> CollisionBox;
 
+private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UProjectileMovementComponent> ProjectileMovementComponent;
 
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<class UParticleSystem> Tracer;
+	TObjectPtr<UParticleSystem> Tracer;
 
 	UPROPERTY()
 	TObjectPtr<class UParticleSystemComponent> TracerComponent;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UParticleSystem> ImpactParticles;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<class USoundCue> ImpactSound;
-
 public:	
 
 };
