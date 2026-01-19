@@ -17,13 +17,17 @@ public:
 	virtual void Fire(const FVector& HitTarget) override;
 protected:
 	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
-private:
-	UPROPERTY(EditAnywhere)
-	float Damage = 20.f;
+	void WeaponTraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHit);
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UParticleSystem> ImpactParticles;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundCue> HitSound;
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
+private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UParticleSystem> BeamParticles;
 
@@ -32,9 +36,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundCue> FireSound;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USoundCue> HitSound;
 
 	/**
 	* Trace end with scatter
