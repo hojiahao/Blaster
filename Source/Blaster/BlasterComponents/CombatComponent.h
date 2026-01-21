@@ -29,6 +29,10 @@ public:
 
 	void FireButtonPressed(bool bPressed);
 
+	UFUNCTION(BlueprintCallable)
+	void ShotgunShellReload();
+
+	void JumpToShotgunEnd();
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -160,7 +164,7 @@ private:
 	void OnRep_CombatState();
 
 	void UpdateAmmoValues();
-
+	void UpdateShotgunAmmoValues();
 public:	
 	
 };
