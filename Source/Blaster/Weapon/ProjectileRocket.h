@@ -19,13 +19,6 @@ public:
 protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
 	virtual void BeginPlay() override;
-	void DestroyTimerFinished();
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<class UNiagaraSystem> TrailSystem;
-
-	UPROPERTY()
-	TObjectPtr<class UNiagaraComponent> TrailSystemComponent;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundCue> ProjectileLoop;
@@ -39,11 +32,5 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class URocketMovementComponent> RocketMovementComponent;
 private:
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UStaticMeshComponent> RocketMesh;
 
-	FTimerHandle DestroyTimer;
-
-	UPROPERTY(EditAnywhere)
-	float DestroyTime = 3.f;
 };
