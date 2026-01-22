@@ -31,8 +31,8 @@ public:
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
 	void PlayElimMontage();
+	void PlayThrowGrenadeMontage();
 	virtual void OnRep_ReplicatedMovement() override;
-
 	void Elim();
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -58,6 +58,8 @@ protected:
 	void CrouchButtonPressed();
 	// Enhanced Input - Reload
 	void ReloadButtonPressed();
+	// Enhanced Input - Throw Grenade                                                                                                                           
+	void GrenadeButtonPressed();
 	// Enhanced Input - Aim
 	void AimButtonPressed();
 	void AimButtonReleased();
@@ -107,6 +109,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ReloadAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ThrowGrenadeAction;
+
 	// FPS Camera - attached directly to capsule component
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	TObjectPtr<class UCameraComponent> FollowCamera;
@@ -149,6 +154,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TObjectPtr<UAnimMontage> ElimMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	TObjectPtr<UAnimMontage> ThrowGrenadeMontage;
 
 	// FPS: Hide character mesh from owner's view                                                                                                             
 	void SetupFPSMeshVisibility();

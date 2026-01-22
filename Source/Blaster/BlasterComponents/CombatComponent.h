@@ -33,6 +33,9 @@ public:
 	void ShotgunShellReload();
 
 	void JumpToShotgunEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void ThrowGrenadeFinished();
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -62,6 +65,10 @@ protected:
 	void HandleReload();
 	int32 AmountToReload();
 
+	void ThrowGrenade();
+
+	UFUNCTION(Server, Reliable)
+	void ServerThrowGrenade();
 private:
 	UPROPERTY()
 	TObjectPtr<class ABlasterCharacter> Character;
