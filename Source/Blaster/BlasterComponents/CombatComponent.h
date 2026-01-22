@@ -39,6 +39,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LaunchGrenade();
+
+	UFUNCTION(Server, Reliable)
+	void ServerLaunchGrenade(const FVector_NetQuantize& Target);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
