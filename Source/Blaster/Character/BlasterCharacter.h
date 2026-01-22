@@ -230,6 +230,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class ABlasterPlayerState> BlasterPlayerState;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UStaticMeshComponent> AttachedGrenade;
 public:	
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
