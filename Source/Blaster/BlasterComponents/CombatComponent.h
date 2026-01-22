@@ -36,6 +36,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ThrowGrenadeFinished();
+
+	UFUNCTION(BlueprintCallable)
+	void LaunchGrenade();
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -76,6 +79,7 @@ protected:
 	void UpdateCarriedAmmo();
 	void PlayEquipWeaponSound();
 	void ReloadEmptyWeapon();
+	void ShowAttachedGrenade(bool bShowGrenade);
 private:
 	UPROPERTY()
 	TObjectPtr<class ABlasterCharacter> Character;
