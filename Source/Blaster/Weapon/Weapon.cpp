@@ -38,9 +38,8 @@ AWeapon::AWeapon()
 
 	// UE 5.7.1: Properly hide sphere in game and editor
 	AreaSphere->SetHiddenInGame(true);
-	AreaSphere->SetVisibility(false, true); // Propagate to children
+	AreaSphere->SetVisibility(false, true);
 	AreaSphere->bHiddenInGame = true;
-	AreaSphere->SetComponentTickEnabled(false);
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	PickupWidget->SetupAttachment(RootComponent);

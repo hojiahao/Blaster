@@ -52,6 +52,7 @@ ABlasterCharacter::ABlasterCharacter()
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetMesh()->SetOwnerNoSee(true);
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 850.f);
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
@@ -63,6 +64,7 @@ ABlasterCharacter::ABlasterCharacter()
 	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
 	AttachedGrenade->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
 	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttachedGrenade->SetOwnerNoSee(true);
 }
 
 // Called to bind functionality to input
@@ -537,7 +539,7 @@ void ABlasterCharacter::SetupFPSMeshVisibility()
 	// FPS: Only update weapon visibility (character mesh visibility set in PostInitializeComponents)
 	if (!IsLocallyControlled()) return;
 
-	// Weapon should be visible to owner in FPS mode
+	// Ensure weapon mesh is visible to owner in FPS mode
 	if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
 	{
 		Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
@@ -610,12 +612,6 @@ void ABlasterCharacter::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->Character = this;
-	}
-
-	// FPS: Set up mesh visibility once during initialization
-	if (IsLocallyControlled())
-	{
-		GetMesh()->SetOwnerNoSee(true);
 	}
 }
 
