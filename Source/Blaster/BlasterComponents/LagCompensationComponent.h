@@ -45,6 +45,11 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void ShowFramePackage(const FFramePackage& Package, const FColor& Color);
+	void ServerSideRewind(
+		class ABlasterCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize& HitLocation,
+		float HitTime);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
