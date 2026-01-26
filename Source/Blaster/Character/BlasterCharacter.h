@@ -68,6 +68,8 @@ protected:
 	void ReloadButtonPressed();
 	// Enhanced Input - Throw Grenade                                                                                                                           
 	void GrenadeButtonPressed();
+	void DropOrDestroyWeapon(AWeapon* Weapon);
+	void DropOrDestroyWeapons();
 	// Enhanced Input - Aim
 	void AimButtonPressed();
 	void AimButtonReleased();
