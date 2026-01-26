@@ -95,6 +95,7 @@ void AWeapon::OnRep_WeaponState()
 	{
 	case EWeaponState::EWS_Equipped:
 		ShowPickupWidget(false);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		WeaponMesh->SetSimulatePhysics(false);
 		WeaponMesh->SetEnableGravity(false);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

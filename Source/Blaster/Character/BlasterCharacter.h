@@ -9,6 +9,7 @@
 #include "InputActionValue.h"
 #include "Components/TimelineComponent.h"
 #include "Blaster/BlasterTypes/CombatState.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
 #include "BlasterCharacter.generated.h"
 
 class UInputMappingContext;
@@ -128,6 +129,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCombatComponent> Combat;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UBuffComponent> Buff;
+
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
 
@@ -158,7 +162,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TObjectPtr<UAnimMontage> ThrowGrenadeMontage;
 
-	// FPS: Hide character mesh from owner's view                                                                                                             
+	// FPS: Ensure weapon mesh remains visible to owning player                                                                                                             
 	void SetupFPSMeshVisibility();
 
 	bool bRotateRootBone;
