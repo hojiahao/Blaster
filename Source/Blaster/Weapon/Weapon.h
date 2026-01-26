@@ -89,7 +89,7 @@ protected:
 	virtual void OnEquippedSecondary();
 
 	UFUNCTION()
-	virtual void OnSephereOverlap(
+	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent, 
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
