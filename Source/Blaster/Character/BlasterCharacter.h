@@ -52,6 +52,8 @@ public:
 
 	void SpawDefaultWeapon();
 
+	UPROPERTY()
+	TMap<FName, class UBoxComponent*> HitCollisionBoxes;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
