@@ -1,15 +1,16 @@
 # Blaster - 多人联网射击游戏
 
-基于 **Unreal Engine 5.7.1** 开发的多人在线第一人称射击游戏（FPS），实现了完整的网络同步架构、多种武器系统、战斗系统、生命值与伤害系统、消灭重生机制、得分统计以及动画/UI 系统。
+基于 **Unreal Engine 5.7.1** 开发的多人在线第一人称射击游戏（FPS），实现了完整的网络同步架构、多种武器系统、战斗系统、生命值与护盾系统、拾取物系统、消灭重生机制、得分统计以及动画/UI 系统。
 
 ## 项目特性
 
 ### 核心玩法
 - **多人联机**：基于 Steam Online Subsystem 实现会话创建、查找、加入
 - **射击系统**：屏幕中心射线追踪、动态准星扩散、FOV 变焦瞄准、自动/半自动射击
-- **武器系统**：7种武器类型、武器拾取装备、弹药管理、换弹系统
+- **武器系统**：7种武器类型、武器拾取装备、弹药管理、换弹系统、双武器切换
 - **伤害系统**：HitScan/Projectile 两种伤害模式、范围伤害、命中特效与音效
 - **手榴弹系统**：投掷手榴弹、范围爆炸伤害
+- **拾取物系统**：血包、护盾、速度加成、跳跃加成、弹药补给
 
 ### 武器类型
 | 武器 | 类型 | 特性 |
@@ -24,9 +25,20 @@
 
 ### 角色系统
 - **生命值系统**：100 点生命值，受伤时 HUD 实时更新
+- **护盾系统**：100 点最大护盾值，优先吸收伤害
+- **Buff 系统**：速度加成、跳跃加成、持续回血、持续回盾
 - **消灭机制**：死亡动画、溶解材质特效、消灭粒子效果
-- **重生系统**：自动随机 PlayerStart 重生
+- **重生系统**：自动随机 PlayerStart 重生、默认武器生成
 - **得分统计**：击杀得分、死亡次数追踪
+
+### 拾取物系统
+| 拾取物 | 效果 | 说明 |
+|--------|------|------|
+| Health Pickup | 恢复生命值 | 5秒内恢复100点生命值 |
+| Shield Pickup | 恢复护盾 | 5秒内恢复100点护盾值 |
+| Speed Pickup | 速度加成 | 30秒内移动速度提升 |
+| Jump Pickup | 跳跃加成 | 30秒内跳跃高度提升 |
+| Ammo Pickup | 弹药补给 | 根据武器类型补充弹药 |
 
 ### 动画系统
 - **Aim Offset**：水平/垂直瞄准偏移
@@ -66,12 +78,13 @@
 FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 FollowCamera->SetupAttachment(GetCapsuleComponent());
 FollowCamera->SetRelativeLocation(FVector(0.f, 0.f, BaseEyeHeight));
-FollowCamera->bUsePawnControlRotation = true;
+FollowCamera->bUsePawnControlRotation = true;  // 相机跟随Pawn控制旋转
 
 // FPS 控制器旋转设置
-bUseControllerRotationYaw = true;
-bUseControllerRotationPitch = true;
-GetCharacterMovement()->bOrientRotationToMovement = false;
+bUseControllerRotationYaw = true;    // 角色Yaw跟随控制器
+bUseControllerRotationPitch = false; // Pitch由相机处理
+bUseControllerRotationRoll = false;
+GetCharacterMovement()->bOrientRotationToMovement = false;  // 不根据移动方向旋转
 ```
 
 ### FPS 网格可见性
@@ -94,10 +107,11 @@ if (IsLocallyControlled())
 ```
 Source/Blaster/
 ├── Character/
-│   ├── BlasterCharacter.cpp      # 主角色 - FPS相机、输入、Aim Offset、生命值
+│   ├── BlasterCharacter.cpp      # 主角色 - FPS相机、输入、Aim Offset、生命值/护盾
 │   └── BlasterAnimInstance.cpp   # 动画实例 - IK、Lean、状态同步
 ├── BlasterComponents/
-│   └── CombatComponent.cpp       # 战斗组件 - 射击、瞄准、准星、换弹、手榴弹
+│   ├── CombatComponent.cpp       # 战斗组件 - 射击、瞄准、准星、换弹、手榴弹、武器切换
+│   └── BuffComponent.cpp         # Buff组件 - 速度/跳跃加成、持续回血/回盾
 ├── Weapon/
 │   ├── Weapon.cpp                # 武器基类 - 状态管理、弹药
 │   ├── HitScanWeapon.cpp         # 命中扫描武器 - 步枪、手枪、霰弹枪
@@ -110,9 +124,17 @@ Source/Blaster/
 │   ├── RocketMovementComponent.cpp # 火箭运动组件
 │   ├── Casing.cpp                # 弹壳物理模拟
 │   └── WeaponTypes.h             # 武器类型枚举
+├── Pickups/
+│   ├── Pickup.cpp                # 拾取物基类 - 旋转动画、Niagara特效
+│   ├── HealthPickup.cpp          # 血包 - 持续回血
+│   ├── ShieldPickup.cpp          # 护盾 - 持续回盾
+│   ├── SpeedPickup.cpp           # 速度加成
+│   ├── JumpPickup.cpp            # 跳跃加成
+│   ├── AmmoPickup.cpp            # 弹药补给
+│   └── PickupSpawnPoint.cpp      # 拾取物生成点 - 随机生成、计时器
 ├── HUD/
 │   ├── BlasterHUD.cpp            # 准星渲染
-│   ├── CharacterOverlay.cpp      # 角色 UI（血条、弹药、手榴弹）
+│   ├── CharacterOverlay.cpp      # 角色 UI（血条、护盾、弹药、手榴弹）
 │   ├── Announcement.cpp          # 游戏公告 UI
 │   └── OverheadWidget.cpp        # 头顶 UI
 ├── GameMode/
@@ -241,6 +263,75 @@ void UCombatComponent::LaunchGrenade()
 }
 ```
 
+### 6. 护盾与伤害计算
+
+```cpp
+void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, ...)
+{
+    float DamageToHealth = Damage;
+    if (Shield > 0.f)
+    {
+        if (Shield >= Damage)
+        {
+            Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
+            DamageToHealth = 0.f;
+        }
+        else
+        {
+            DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+            Shield = 0.f;
+        }
+    }
+    Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+}
+```
+
+### 7. Buff 系统
+
+```cpp
+// 持续回血
+void UBuffComponent::Heal(float HealAmount, float HealingTime)
+{
+    bHealing = true;
+    HealingRate = HealAmount / HealingTime;
+    AmountToHeal += HealAmount;
+}
+
+// 速度加成
+void UBuffComponent::BuffSpeed(float BuffBaseSpeed, float BuffCrouchSpeed, float BuffTime)
+{
+    Character->GetCharacterMovement()->MaxWalkSpeed = BuffBaseSpeed;
+    Character->GetCharacterMovement()->MaxWalkSpeedCrouched = BuffCrouchSpeed;
+    // 设置计时器恢复原速度
+}
+
+// 跳跃加成
+void UBuffComponent::BuffJump(float BuffJumpVelocity, float BuffTime)
+{
+    Character->GetCharacterMovement()->JumpZVelocity = BuffJumpVelocity;
+    // 设置计时器恢复原跳跃
+}
+```
+
+### 8. 武器切换系统
+
+```cpp
+void UCombatComponent::SwapWeapons()
+{
+    AWeapon* TempWeapon = EquippedWeapon;
+    EquippedWeapon = SecondaryWeapon;
+    SecondaryWeapon = TempWeapon;
+
+    // 装备主武器到右手
+    EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+    AttachActorToRightHand(EquippedWeapon);
+
+    // 副武器放到背包
+    SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
+    AttachActorToBackpack(SecondaryWeapon);
+}
+```
+
 ## 操作说明
 
 | 按键 | 功能 |
@@ -249,7 +340,7 @@ void UCombatComponent::LaunchGrenade()
 | 鼠标移动 | 视角控制 |
 | 鼠标左键 | 射击 |
 | 鼠标右键 | 瞄准 |
-| E | 拾取/装备武器 |
+| E | 拾取/装备武器/切换武器 |
 | R | 换弹 |
 | G | 投掷手榴弹 |
 | C | 下蹲 |
@@ -284,8 +375,9 @@ void UCombatComponent::LaunchGrenade()
 - [x] 左手 IK 与身体倾斜
 - [x] 多人网络同步 (Steam)
 - [x] 生命值与伤害系统
+- [x] 护盾系统
 - [x] 消灭动画与溶解特效
-- [x] 重生系统
+- [x] 重生系统与默认武器
 - [x] 得分与失败统计
 - [x] 自动/半自动射击
 - [x] 武器弹药与换弹系统
@@ -293,9 +385,12 @@ void UCombatComponent::LaunchGrenade()
 - [x] 手榴弹投掷系统
 - [x] 比赛状态管理（热身/进行/冷却）
 - [x] 狙击镜 UI
-- [ ] 武器切换系统
+- [x] 武器切换系统（双武器）
+- [x] 拾取物系统（血包、护盾、速度、跳跃、弹药）
+- [x] Buff 系统
 - [ ] 计分板 UI
 - [ ] 更多游戏模式
+- [ ] 团队模式（红队 vs 蓝队）
 
 ## 开发者
 
