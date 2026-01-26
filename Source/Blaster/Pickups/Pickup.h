@@ -39,6 +39,12 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> PickupMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UNiagaraComponent> PickupEffectComponent;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UNiagaraSystem> PickupEffect;
 public:
 
 };

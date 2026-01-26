@@ -4,17 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Pickup.h"
-#include "HealthPickup.generated.h"
+#include "SpeedPickup.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class BLASTER_API AHealthPickup : public APickup
+class BLASTER_API ASpeedPickup : public APickup
 {
 	GENERATED_BODY()
-public:
-	AHealthPickup();
 protected:
 	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
@@ -22,11 +20,16 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex,
 		bool bFromSweep,
-		const FHitResult& SweepResult) override;
+		const FHitResult& SweepResult
+	);
 private:
-	UPROPERTY(EditAnywhere)
-	float HealAmount = 100.f;
 
 	UPROPERTY(EditAnywhere)
-	float HealingTime = 5.f;
+	float BaseSpeedBuff = 1600.f;
+
+	UPROPERTY(EditAnywhere)
+	float CrouchSpeedBuff = 850.f;
+
+	UPROPERTY(EditAnywhere)
+	float SpeedBuffTime = 30.f;
 };
