@@ -1,14 +1,16 @@
 # Blaster - 多人联网射击游戏
 
-基于 **Unreal Engine 5.7.1** 开发的多人在线第一人称射击游戏（FPS），实现了完整的网络同步架构、多种武器系统、战斗系统、生命值与护盾系统、拾取物系统、消灭重生机制、得分统计以及动画/UI 系统。
+基于 **Unreal Engine 5.7.1** 开发的多人在线第一人称射击游戏（FPS），实现了完整的网络同步架构、服务器端回溯（Server-Side Rewind）延迟补偿系统、多种武器系统、战斗系统、生命值与护盾系统、拾取物系统、消灭重生机制、得分统计以及动画/UI 系统。
 
 ## 项目特性
 
 ### 核心玩法
 - **多人联机**：基于 Steam Online Subsystem 实现会话创建、查找、加入
 - **射击系统**：屏幕中心射线追踪、动态准星扩散、FOV 变焦瞄准、自动/半自动射击
-- **武器系统**：7种武器类型、武器拾取装备、弹药管理、换弹系统、双武器切换
-- **伤害系统**：HitScan/Projectile 两种伤害模式、范围伤害、命中特效与音效
+- **武器系统**：7种武器类型、武器拾取装备、弹药管理、换弹系统、双武器切换动画
+- **伤害系统**：HitScan/Projectile/Shotgun 三种伤害模式、范围伤害、命中特效与音效
+- **延迟补偿**：Server-Side Rewind 系统，支持高延迟玩家的公平游戏体验
+- **作弊验证**：服务器端射击验证、射速验证、命中确认
 - **手榴弹系统**：投掷手榴弹、范围爆炸伤害
 - **拾取物系统**：血包、护盾、速度加成、跳跃加成、弹药补给
 
@@ -30,6 +32,18 @@
 - **消灭机制**：死亡动画、溶解材质特效、消灭粒子效果
 - **重生系统**：自动随机 PlayerStart 重生、默认武器生成
 - **得分统计**：击杀得分、死亡次数追踪
+- **碰撞盒系统**：18个身体部位碰撞盒用于精确命中检测
+
+### 碰撞盒布局（Server-Side Rewind）
+| 部位 | 碰撞盒名称 |
+|------|-----------|
+| 头部 | head |
+| 躯干 | pelvis, spine_02, spine_03 |
+| 手臂 | upperarm_l, upperarm_r, lowerarm_l, lowerarm_r |
+| 手部 | hand_l, hand_r |
+| 背包 | backpack, blanket |
+| 腿部 | thigh_l, thigh_r, calf_l, calf_r |
+| 脚部 | foot_l, foot_r |
 
 ### 拾取物系统
 | 拾取物 | 效果 | 说明 |
@@ -52,6 +66,23 @@
 - **RPC 调用链**：Server → NetMulticast 架构
 - **网络频率**：66Hz 更新，33Hz 最低保障
 - **客户端-服务器时间同步**：精准的倒计时和状态同步
+- **Server-Side Rewind（延迟补偿）**：4秒帧历史记录、命中回溯验证
+
+### Server-Side Rewind 系统
+| 功能 | 说明 |
+|------|------|
+| 帧历史记录 | 服务器每帧记录所有角色的碰撞盒位置 |
+| HitScan 回溯 | 对即时命中武器进行时间回溯验证 |
+| Projectile 回溯 | 对投射物轨迹进行预测路径验证 |
+| Shotgun 回溯 | 对散弹枪多弹丸分别进行命中验证 |
+| 帧插值 | 在两个历史帧之间进行精确插值 |
+| 爆头检测 | 区分头部命中和身体命中 |
+| 高延迟处理 | 延迟过高时自动禁用 SSR |
+
+### 作弊验证
+- **射速验证**：服务器验证客户端射击间隔是否符合武器射速
+- **命中验证**：服务器端回溯验证命中的有效性
+- **伤害计算**：所有伤害计算仅在服务器执行
 
 ### 游戏模式
 - **热身阶段**：等待玩家就绪
@@ -107,11 +138,12 @@ if (IsLocallyControlled())
 ```
 Source/Blaster/
 ├── Character/
-│   ├── BlasterCharacter.cpp      # 主角色 - FPS相机、输入、Aim Offset、生命值/护盾
+│   ├── BlasterCharacter.cpp      # 主角色 - FPS相机、输入、Aim Offset、生命值/护盾、18个碰撞盒
 │   └── BlasterAnimInstance.cpp   # 动画实例 - IK、Lean、状态同步
 ├── BlasterComponents/
 │   ├── CombatComponent.cpp       # 战斗组件 - 射击、瞄准、准星、换弹、手榴弹、武器切换
-│   └── BuffComponent.cpp         # Buff组件 - 速度/跳跃加成、持续回血/回盾
+│   ├── BuffComponent.cpp         # Buff组件 - 速度/跳跃加成、持续回血/回盾
+│   └── LagCompensationComponent.cpp # 延迟补偿组件 - Server-Side Rewind、帧历史、命中验证
 ├── Weapon/
 │   ├── Weapon.cpp                # 武器基类 - 状态管理、弹药
 │   ├── HitScanWeapon.cpp         # 命中扫描武器 - 步枪、手枪、霰弹枪
@@ -332,6 +364,93 @@ void UCombatComponent::SwapWeapons()
 }
 ```
 
+### 9. Server-Side Rewind（延迟补偿）
+
+```cpp
+// 帧历史数据结构
+USTRUCT(BlueprintType)
+struct FFramePackage
+{
+    float Time;
+    TMap<FName, FBoxInformation> HitBoxInfo;  // 18个碰撞盒的位置信息
+    ABlasterCharacter* Character;
+};
+
+// 服务器每帧保存角色状态
+void ULagCompensationComponent::SaveFramePackage()
+{
+    if (FrameHistory.Num() <= 1)
+    {
+        FFramePackage ThisFrame;
+        SaveFramePackage(ThisFrame);
+        FrameHistory.AddHead(ThisFrame);
+    }
+    else
+    {
+        // 移除超过 MaxRecordTime (4秒) 的旧帧
+        while (HistoryLength > MaxRecordTime)
+        {
+            FrameHistory.RemoveNode(FrameHistory.GetTail());
+        }
+        // 添加新帧
+        FrameHistory.AddHead(ThisFrame);
+    }
+}
+
+// HitScan 命中回溯验证
+FServerSideRewindResult ULagCompensationComponent::ServerSideRewind(
+    ABlasterCharacter* HitCharacter,
+    const FVector_NetQuantize& TraceStart,
+    const FVector_NetQuantize& HitLocation,
+    float HitTime)
+{
+    FFramePackage FrameToCheck = GetFrameToCheck(HitCharacter, HitTime);
+    return ConfirmHit(FrameToCheck, HitCharacter, TraceStart, HitLocation);
+}
+
+// Projectile 投射物回溯验证
+FServerSideRewindResult ULagCompensationComponent::ProjectileServerSideRewind(
+    ABlasterCharacter* HitCharacter,
+    const FVector_NetQuantize& TraceStart,
+    const FVector_NetQuantize100& InitialVelocity,
+    float HitTime)
+{
+    // 使用 UGameplayStatics::PredictProjectilePath 进行轨迹预测验证
+}
+```
+
+### 10. 作弊验证系统
+
+```cpp
+// 射速验证 - ServerFire_Validate
+bool UCombatComponent::ServerFire_Validate(const FVector_NetQuantize& TraceHitTarget, float FireDelay)
+{
+    if (EquippedWeapon)
+    {
+        // 验证客户端发送的射击间隔是否与服务器武器配置匹配
+        bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->FireDelay, FireDelay, 0.001f);
+        return bNearlyEqual;
+    }
+    return true;
+}
+
+// 服务器得分请求 - 命中验证后应用伤害
+void ULagCompensationComponent::ServerScoreRequest_Implementation(
+    ABlasterCharacter* HitCharacter,
+    const FVector_NetQuantize& TraceStart,
+    const FVector_NetQuantize& HitLocation,
+    float HitTime,
+    AWeapon* DamageCauser)
+{
+    FServerSideRewindResult Confirm = ServerSideRewind(HitCharacter, TraceStart, HitLocation, HitTime);
+
+    if (Character && HitCharacter && DamageCauser && Confirm.bHitConfirmed)
+    {
+        UGameplayStatics::ApplyDamage(HitCharacter, DamageCauser->GetDamage(), ...);
+    }
+}
+```
+
 ## 操作说明
 
 | 按键 | 功能 |
@@ -366,10 +485,11 @@ void UCombatComponent::SwapWeapons()
 
 ## 开发进度
 
+### 核心系统
 - [x] 基础角色移动与 FPS 相机
 - [x] Enhanced Input 输入系统
 - [x] 武器拾取与装备
-- [x] 射击系统（HitScan/Projectile）
+- [x] 射击系统（HitScan/Projectile/Shotgun）
 - [x] 动态准星系统
 - [x] Aim Offset 与 Turn In Place
 - [x] 左手 IK 与身体倾斜
@@ -386,11 +506,30 @@ void UCombatComponent::SwapWeapons()
 - [x] 比赛状态管理（热身/进行/冷却）
 - [x] 狙击镜 UI
 - [x] 武器切换系统（双武器）
+- [x] 武器切换动画
 - [x] 拾取物系统（血包、护盾、速度、跳跃、弹药）
 - [x] Buff 系统
+
+### Server-Side Rewind（延迟补偿）
+- [x] 帧历史记录系统（TDoubleLinkedList）
+- [x] 角色碰撞盒系统（18个身体部位）
+- [x] HitScan 服务器回溯验证
+- [x] Projectile 服务器回溯验证
+- [x] Shotgun 服务器回溯验证
+- [x] 帧间插值算法
+- [x] 爆头/身体命中区分
+- [x] 高延迟自动禁用 SSR
+
+### 作弊验证
+- [x] 射速验证（ServerFire_Validate）
+- [x] 命中验证（Server Score Request）
+- [x] 服务器端伤害计算
+
+### 待实现
 - [ ] 计分板 UI
 - [ ] 更多游戏模式
 - [ ] 团队模式（红队 vs 蓝队）
+- [ ] 爆头伤害加成
 
 ## 开发者
 
