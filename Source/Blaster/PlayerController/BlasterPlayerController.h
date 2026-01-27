@@ -39,7 +39,7 @@ protected:
 	virtual void BeginPlay() override;
 	void SetHUDTime();
 	void PollInit();
-
+	virtual void SetupInputComponent() override;
 	/**
 	* Sync time between client and server
 	*/
@@ -69,9 +69,21 @@ protected:
 	void HighPingWarning();
 	void StopHighPingWarning();
 	void CheckPing(float DeltaTime);
+	void ShowReturnToMainMenu();
 private:
 	UPROPERTY()
 	TObjectPtr<class ABlasterHUD> BlasterHUD;
+
+	/**
+	* Return to main menu
+	*/
+	UPROPERTY(EditAnywhere, Category = HUD)
+	TSubclassOf<class UUserWidget> ReturnToMainMenuWidget;
+
+	UPROPERTY()
+	TObjectPtr<class UReturnToMainMenu> ReturnToMainMenu;
+
+	bool bReturnToMainMenuOpen = false;
 
 	float LevelStartingTime = 0.f;
 	float MatchTime = 0.f;
