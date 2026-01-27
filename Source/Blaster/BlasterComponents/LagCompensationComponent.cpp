@@ -364,7 +364,7 @@ FFramePackage ULagCompensationComponent::GetFrameToCheck(ABlasterCharacter * Hit
 		// Interpolate between Younger and Older
 		FrameToCheck = InterpBetweenFrames(Older->GetValue(), Younger->GetValue(), HitTime);
 	}
-
+	FrameToCheck.Character = HitCharacter;
 	return FrameToCheck;
 }
 
