@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "BlasterPlayerController.generated.h"
 
+class UInputAction;
+class UInputMappingContext;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
 
 /**
@@ -73,6 +76,12 @@ protected:
 private:
 	UPROPERTY()
 	TObjectPtr<class ABlasterHUD> BlasterHUD;
+
+	/**
+	* Enhanced Input - Quit Game Action
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> QuitGameAction;
 
 	/**
 	* Return to main menu

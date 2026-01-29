@@ -15,6 +15,8 @@
 #include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Blaster/GameState/BlasterGameState.h"
 #include "Components/Image.h"
+#include "EnhancedInputComponent.h"                                                                                                                                        
+#include "InputAction.h"
 #include "Blaster/HUD/ReturnToMainMenu.h"
 
 void ABlasterPlayerController::BeginPlay()
@@ -457,8 +459,13 @@ void ABlasterPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	if (InputComponent == nullptr) return;
 
-	InputComponent->BindAction("Quit", IE_Pressed, this, &ABlasterPlayerController::ShowReturnToMainMenu);
-
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
+	{
+		if (QuitGameAction)
+		{
+			EnhancedInputComponent->BindAction(QuitGameAction, ETriggerEvent::Started, this, &ABlasterPlayerController::ShowReturnToMainMenu);
+		}
+	}
 }
 
 void ABlasterPlayerController::OnMatchStateSet(FName State)
