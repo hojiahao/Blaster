@@ -69,6 +69,12 @@ public:
 	void ServerLeaveGame();
 
 	FOnLeftGame OnLeftGame;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastGainedTheLead();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLostTheLead();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -326,7 +332,7 @@ private:
 	TObjectPtr<UMaterialInterface> DissolveMaterialInstance;
 
 	/**
-	* Elim bot
+	* Elim effects
 	*/
 
 	UPROPERTY(EditAnywhere)
@@ -340,6 +346,12 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class ABlasterPlayerState> BlasterPlayerState;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UNiagaraSystem> CrownSystem;
+
+	UPROPERTY()
+	TObjectPtr<class UNiagaraComponent> CrownComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> AttachedGrenade;
