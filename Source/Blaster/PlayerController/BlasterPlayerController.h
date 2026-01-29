@@ -38,6 +38,7 @@ public:
 	void HandleCooldown();
 	float SingleTripTime = 0.f;
 	FHighPingDelegate HighPingDelegate;
+	void BroadcastElim(APlayerState* Attacker, APlayerState* Victim);
 protected:
 	virtual void BeginPlay() override;
 	void SetHUDTime();
@@ -73,6 +74,9 @@ protected:
 	void StopHighPingWarning();
 	void CheckPing(float DeltaTime);
 	void ShowReturnToMainMenu();
+
+	UFUNCTION(Client, Reliable)
+	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
 private:
 	UPROPERTY()
 	TObjectPtr<class ABlasterHUD> BlasterHUD;
