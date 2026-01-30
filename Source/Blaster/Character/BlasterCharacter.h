@@ -382,6 +382,9 @@ private:
 	*/
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	UPROPERTY()
+	TObjectPtr<class ABlasterGameMode> BlasterGameMode;
 public:	
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
