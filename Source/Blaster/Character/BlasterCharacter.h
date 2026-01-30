@@ -96,6 +96,8 @@ protected:
 	void GrenadeButtonPressed();
 	void DropOrDestroyWeapon(AWeapon* Weapon);
 	void DropOrDestroyWeapons();
+	void SetSpawnPoint();
+	void OnPlayerStateInitialized();
 	// Enhanced Input - Aim
 	void AimButtonPressed();
 	void AimButtonReleased();
