@@ -20,6 +20,7 @@
 - **领先者皇冠**：得分最高的玩家头顶显示 Niagara 皇冠特效（`MulticastGainedTheLead` / `MulticastLostTheLead`）
 - **高延迟检测**：周期性检测 Ping，超过阈值时显示高延迟警告动画，并通过 `ServerReportPingStatus` 自动禁用 Server-Side Rewind
 - **返回主菜单**：游戏内按 ESC 弹出返回主菜单 UI，通过 `MultiplayerSessionsSubsystem` 销毁会话后退出
+- **团队模式**：红队 vs 蓝队对抗，自动队伍分配与平衡、禁止友方伤害、团队计分、队伍颜色（材质 + 溶解特效）、HUD 实时队伍分数显示
 
 ### 武器类型
 | 武器 | 类型 | 特性 |
@@ -121,13 +122,46 @@ Not Using SSR + Server Authority   → 使用 Replicated Projectile，SSR=false
   - **比赛进行**（120s）：限时对战，实时倒计时
   - **冷却阶段**（10s）：显示胜者信息、准备新一轮
   - **自定义 MatchState**：新增 `Cooldown` 状态，扩展引擎默认状态机
+- **TeamsGameMode**（继承 BlasterGameMode）：
+  - **自动队伍分配**：`PostLogin` 时根据队伍人数自动分配玩家至红队或蓝队，保持队伍平衡
+  - **友方伤害禁止**：`CalculateDamage` 重写，同队伤害返回 0
+  - **团队计分**：击杀敌方玩家时通过 `BlasterGameState::RedTeamScores()` / `BlueTeamScores()` 更新队伍总分
+  - **玩家退出处理**：`Logout` 时自动从对应队伍数组中移除玩家
+  - **比赛开始同步**：`HandleMatchHasStarted` 确保所有玩家在比赛开始时分配到队伍
 - **消灭处理**：`PlayerEliminated` → 更新得分 → 更新最高分 → 广播消灭通知 → 触发 Elim
 - **重生机制**：随机选择 `PlayerStart` 位置，调用 `RestartPlayerAtPlayerStart`
+
+### 团队系统
+
+#### 队伍枚举（ETeam）
+```cpp
+UENUM(BlueprintType)
+enum class ETeam : uint8
+{
+    ET_RedTeam,   // 红队
+    ET_BlueTeam,  // 蓝队
+    ET_NoTeam,    // 未分配
+    ET_MAX
+};
+```
+
+#### 队伍分配与同步
+- **PlayerState**：`ETeam Team` 属性通过 `ReplicatedUsing = OnRep_Team` 同步到所有客户端
+- **GameState**：维护 `TArray<ABlasterPlayerState*> RedTeam` / `BlueTeam` 队伍数组
+- **队伍分数**：`RedTeamScore` / `BlueTeamScore` 通过 `OnRep` 回调实时更新 HUD
+
+#### 队伍颜色
+- **角色材质**：`SetTeamColor(ETeam)` 根据队伍切换角色材质（`RedMaterial` / `BlueMaterial`）
+- **溶解特效**：死亡时使用对应队伍颜色的溶解材质实例（`RedDissolveMatInst` / `BlueDissolveMatInst`）
+
+#### 队伍 HUD
+- **CharacterOverlay**：显示 `RedTeamScore` / `BlueTeamScore` 文本
+- **PlayerController**：`InitTeamScores()` / `HideTeamScores()` 根据游戏模式动态切换队伍分数 UI 的显示
 
 ### HUD/UI 系统
 | 组件 | 说明 |
 |------|------|
-| CharacterOverlay | 血条、护盾条、弹药（武器/备弹）、手榴弹数、击杀/死亡数、倒计时、高延迟警告、红蓝队分数（预留） |
+| CharacterOverlay | 血条、护盾条、弹药（武器/备弹）、手榴弹数、击杀/死亡数、倒计时、高延迟警告、红蓝队分数 |
 | BlasterHUD | 5 片式动态准星渲染（Center/Left/Right/Top/Bottom）、准星扩散与颜色变化 |
 | Announcement | 比赛状态公告（热身倒计时、冷却阶段胜者信息） |
 | ElimAnnouncement | 击杀广播通知，支持滚动叠加显示、定时自动移除 |
@@ -254,16 +288,18 @@ Source/Blaster/
 │   └── ReturnToMainMenu.h/.cpp      # 返回主菜单（销毁 Session、Seamless 退出）
 ├── GameMode/
 │   ├── BlasterGameMode.h/.cpp       # 主模式 - 消灭/重生/比赛状态机（WaitingToStart→InProgress→Cooldown）
+│   ├── TeamsGameMode.h/.cpp         # 团队模式 - 自动队伍分配、友伤禁止、团队计分
 │   └── LobbyGameMode.h/.cpp         # 大厅模式 - 2 人就绪后 Seamless Travel
 ├── GameState/
-│   └── BlasterGameState.h/.cpp      # 游戏状态 - TopScoringPlayers 追踪与更新
+│   └── BlasterGameState.h/.cpp      # 游戏状态 - TopScoringPlayers 追踪与更新、红蓝队伍数组与分数
 ├── PlayerController/
-│   └── BlasterPlayerController.h/.cpp # HUD 更新、时间同步、Ping 检测、消灭广播、返回主菜单
+│   └── BlasterPlayerController.h/.cpp # HUD 更新、时间同步、Ping 检测、消灭广播、队伍分数 UI、返回主菜单
 ├── PlayerState/
-│   └── BlasterPlayerState.h/.cpp    # 得分/失败统计、OnRep 回调更新 HUD
+│   └── BlasterPlayerState.h/.cpp    # 得分/失败统计、队伍分配、OnRep 回调更新 HUD
 ├── Interfaces/
 │   └── InteractWithCrosshairsInterface.h # 准星交互接口（瞄准敌人时准星变红）
 ├── BlasterTypes/
+│   ├── Team.h                       # 队伍枚举（RedTeam/BlueTeam/NoTeam）
 │   ├── TurningInPlace.h             # 原地转身枚举（Left/Right/NotTurning）
 │   └── CombatState.h                # 战斗状态枚举（Unoccupied/Reloading/ThrowingGrenade/SwappingWeapons）
 ├── Blaster.h                        # 自定义碰撞通道定义（ECC_SkeletalMesh、ECC_HitBox）
@@ -504,10 +540,20 @@ void ClientReportServerTime_Implementation(float TimeOfClientRequest, float Time
 - [x] 本地射击预测（LocalFire）
 - [x] 高延迟广播（ServerReportPingStatus）
 
+### 团队系统
+- [x] 队伍枚举（ETeam：RedTeam / BlueTeam / NoTeam）
+- [x] 团队游戏模式（TeamsGameMode）
+- [x] 自动队伍分配与平衡（PostLogin / HandleMatchHasStarted）
+- [x] 友方伤害禁止（CalculateDamage 重写）
+- [x] 团队计分系统（RedTeamScore / BlueTeamScore）
+- [x] 队伍分数网络同步（OnRep_RedTeamScore / OnRep_BlueTeamScore）
+- [x] 队伍颜色材质（角色材质 + 溶解特效）
+- [x] 队伍分数 HUD 显示与动态切换
+- [x] 玩家退出队伍清理（Logout）
+
 ### 待实现
 - [ ] 计分板 UI
-- [ ] 更多游戏模式
-- [ ] 团队模式（红队 vs 蓝队）—— UI 组件已预留（RedTeamScore / BlueTeamScore）
+- [ ] 更多游戏模式（夺旗模式等）
 
 ## 开发者
 
