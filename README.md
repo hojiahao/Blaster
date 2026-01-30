@@ -1,8 +1,6 @@
 # Blaster - 多人联网射击游戏
 
-基于 **Unreal Engine 5.7.1** 开发的多人在线第一人称射击游戏（FPS），实现了完整的网络同步架构、服务器端回溯（Server-Side Rewind）延迟补偿系统、多种武器系统、战斗系统、生命值与护盾系统、拾取物系统、Buff 系统、消灭重生机制、得分统计、消灭广播、高延迟检测、领先者皇冠特效、返回主菜单，以及动画/UI 系统。
-
-
+基于 **Unreal Engine 5.7.1** 开发的多人在线第一人称射击游戏（FPS），实现了完整的网络同步架构、服务器端回溯（Server-Side Rewind）延迟补偿系统、多种武器系统、战斗系统、生命值与护盾系统、拾取物系统、Buff 系统、消灭重生机制、得分统计、消灭广播、高延迟检测、领先者皇冠特效、返回主菜单、团队对抗（红蓝队）、夺旗模式（Capture the Flag），以及动画/UI 系统。
 
 ## 项目特性
 
@@ -106,7 +104,7 @@
 
 ### ProjectileWeapon SSR 分支逻辑
 
-```
+```cpp
 Server + LocallyControlled (Host)  → 使用 Replicated Projectile，SSR=false
 Server + Not LocallyControlled     → 使用 Non-Replicated Projectile，SSR=true
 Client + LocallyControlled         → 使用 Non-Replicated Projectile，SSR=true，记录 TraceStart/InitialVelocity
@@ -280,7 +278,7 @@ AttachedGrenade->SetOwnerNoSee(true);    // 隐藏本地玩家手雷模型
 
 ## 项目结构
 
-```
+```cpp
 Source/Blaster/
 ├── Character/
 │   ├── BlasterCharacter.h/.cpp      # 主角色 - FPS 相机、Enhanced Input、Aim Offset、18 个碰撞盒、溶解特效、皇冠特效
