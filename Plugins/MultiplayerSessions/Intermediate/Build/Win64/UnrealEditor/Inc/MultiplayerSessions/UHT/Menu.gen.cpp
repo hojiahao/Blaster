@@ -377,11 +377,23 @@ struct Z_Construct_UClass_UMenu_Statics
 		{ "EditInline", "true" },
 		{ "ModuleRelativePath", "Public/Menu.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_NumPublicConnections_MetaData[] = {
+		{ "AllowPrivateAccess", "true" },
+		{ "Category", "Menu" },
+		{ "ModuleRelativePath", "Public/Menu.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MatchType_MetaData[] = {
+		{ "AllowPrivateAccess", "true" },
+		{ "Category", "Menu" },
+		{ "ModuleRelativePath", "Public/Menu.h" },
+	};
 #endif // WITH_METADATA
 
 // ********** Begin Class UMenu constinit property declarations ************************************
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_HostButton;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_JoinButton;
+	static const UECodeGen_Private::FIntPropertyParams NewProp_NumPublicConnections;
+	static const UECodeGen_Private::FStrPropertyParams NewProp_MatchType;
 	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
 // ********** End Class UMenu constinit property declarations **************************************
 	static constexpr UE::CodeGen::FClassNativeFunction Funcs[] = {
@@ -411,9 +423,13 @@ struct Z_Construct_UClass_UMenu_Statics
 // ********** Begin Class UMenu Property Definitions ***********************************************
 const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_HostButton = { "HostButton", nullptr, (EPropertyFlags)0x0040000000080008, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(UMenu, HostButton), Z_Construct_UClass_UButton_NoRegister, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_HostButton_MetaData), NewProp_HostButton_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton = { "JoinButton", nullptr, (EPropertyFlags)0x0040000000080008, UECodeGen_Private::EPropertyGenFlags::Object, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(UMenu, JoinButton), Z_Construct_UClass_UButton_NoRegister, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_JoinButton_MetaData), NewProp_JoinButton_MetaData) };
+const UECodeGen_Private::FIntPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_NumPublicConnections = { "NumPublicConnections", nullptr, (EPropertyFlags)0x0040000000000004, UECodeGen_Private::EPropertyGenFlags::Int, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(UMenu, NumPublicConnections), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_NumPublicConnections_MetaData), NewProp_NumPublicConnections_MetaData) };
+const UECodeGen_Private::FStrPropertyParams Z_Construct_UClass_UMenu_Statics::NewProp_MatchType = { "MatchType", nullptr, (EPropertyFlags)0x0040000000000004, UECodeGen_Private::EPropertyGenFlags::Str, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(UMenu, MatchType), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MatchType_MetaData), NewProp_MatchType_MetaData) };
 const UECodeGen_Private::FPropertyParamsBase* const Z_Construct_UClass_UMenu_Statics::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_HostButton,
 	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_JoinButton,
+	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_NumPublicConnections,
+	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UClass_UMenu_Statics::NewProp_MatchType,
 };
 static_assert(UE_ARRAY_COUNT(Z_Construct_UClass_UMenu_Statics::PropPointers) < 2048);
 // ********** End Class UMenu Property Definitions *************************************************
@@ -459,10 +475,10 @@ UMenu::~UMenu() {}
 struct Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h__Script_MultiplayerSessions_Statics
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_UMenu, UMenu::StaticClass, TEXT("UMenu"), &Z_Registration_Info_UClass_UMenu, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UMenu), 733566269U) },
+		{ Z_Construct_UClass_UMenu, UMenu::StaticClass, TEXT("UMenu"), &Z_Registration_Info_UClass_UMenu, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UMenu), 1136128717U) },
 	};
 }; // Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h__Script_MultiplayerSessions_Statics 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h__Script_MultiplayerSessions_3089732961{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h__Script_MultiplayerSessions_4079791247{
 	TEXT("/Script/MultiplayerSessions"),
 	Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h__Script_MultiplayerSessions_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_Blaster_Plugins_MultiplayerSessions_Source_MultiplayerSessions_Public_Menu_h__Script_MultiplayerSessions_Statics::ClassInfo),
 	nullptr, 0,
