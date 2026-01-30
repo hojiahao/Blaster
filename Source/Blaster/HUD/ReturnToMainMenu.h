@@ -26,14 +26,14 @@ protected:
 	void OnPlayerLeftGame();
 private:
 	UPROPERTY(meta = (BindWidget))
-	class UButton* ReturnButton;
+	TObjectPtr<class UButton> ReturnButton;
 
 	UFUNCTION()
 	void ReturnButtonClicked();
 
 	UPROPERTY()
-	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
+	TObjectPtr<class UMultiplayerSessionsSubsystem> MultiplayerSessionsSubsystem;
 
 	UPROPERTY()
-	class APlayerController* PlayerController;
+	TObjectPtr<class APlayerController> PlayerController;
 };

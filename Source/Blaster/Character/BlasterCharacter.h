@@ -10,6 +10,7 @@
 #include "Components/TimelineComponent.h"
 #include "Blaster/BlasterTypes/CombatState.h"
 #include "Blaster/BlasterComponents/CombatComponent.h"
+#include "Blaster/BlasterTypes/Team.h"
 #include "BlasterCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGame);
@@ -75,6 +76,8 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLostTheLead();
+
+	void SetTeamColor(ETeam Team);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -115,58 +118,58 @@ protected:
 	* Hit boxes used for server-side rewind
 	*/
 	UPROPERTY(EditAnywhere)
-	class UBoxComponent* head;
+	TObjectPtr<class UBoxComponent> head;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* pelvis;
+	TObjectPtr<UBoxComponent> pelvis;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* spine_02;
+	TObjectPtr<UBoxComponent> spine_02;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* spine_03;
+	TObjectPtr<UBoxComponent> spine_03;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* upperarm_l;
+	TObjectPtr<UBoxComponent> upperarm_l;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* upperarm_r;
+	TObjectPtr<UBoxComponent> upperarm_r;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* lowerarm_l;
+	TObjectPtr<UBoxComponent> lowerarm_l;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* lowerarm_r;
+	TObjectPtr<UBoxComponent> lowerarm_r;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* hand_l;
+	TObjectPtr<UBoxComponent> hand_l;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* hand_r;
+	TObjectPtr<UBoxComponent> hand_r;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* backpack;
+	TObjectPtr<UBoxComponent> backpack;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* blanket;
+	TObjectPtr<UBoxComponent> blanket;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* thigh_l;
+	TObjectPtr<UBoxComponent> thigh_l;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* thigh_r;
+	TObjectPtr<UBoxComponent> thigh_r;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* calf_l;
+	TObjectPtr<UBoxComponent> calf_l;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* calf_r;
+	TObjectPtr<UBoxComponent> calf_r;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* foot_l;
+	TObjectPtr<UBoxComponent> foot_l;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* foot_r;
+	TObjectPtr<UBoxComponent> foot_r;
 private:
 	// Enhanced Input - Mapping Context
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -327,8 +330,27 @@ private:
 	TObjectPtr<UMaterialInstanceDynamic> DynamicDissolveMaterialInstance;
 
 	// Material instance set on the Blueprint, used with the dynamic material instance
-	UPROPERTY(EditAnywhere, Category = Elim)
+	UPROPERTY(VisibleAnywhere, Category = Elim)
 	TObjectPtr<UMaterialInterface> DissolveMaterialInstance;
+
+	/**
+	* Team colors
+	*/
+
+	UPROPERTY(EditAnywhere, Category = Elim)
+	TObjectPtr<UMaterialInstance> RedDissolveMatInst;
+
+	UPROPERTY(EditAnywhere, Category = Elim)
+	TObjectPtr<UMaterialInstance> RedMaterial;
+
+	UPROPERTY(EditAnywhere, Category = Elim)
+	TObjectPtr<UMaterialInstance> BlueDissolveMatInst;
+
+	UPROPERTY(EditAnywhere, Category = Elim)
+	TObjectPtr<UMaterialInstance> BlueMaterial;
+
+	UPROPERTY(EditAnywhere, Category = Elim)
+	TObjectPtr<UMaterialInstance> OriginalMaterial;
 
 	/**
 	* Elim effects

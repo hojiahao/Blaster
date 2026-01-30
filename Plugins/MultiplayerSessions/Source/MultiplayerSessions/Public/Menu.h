@@ -36,10 +36,10 @@ protected:
 
 private:
 	UPROPERTY(meta = (BindWidget))
-	class UButton* HostButton;
+	TObjectPtr<class UButton> HostButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UButton* JoinButton;
+	TObjectPtr<class UButton> JoinButton;
 
 	UFUNCTION()
 	void HostButtonClicked();

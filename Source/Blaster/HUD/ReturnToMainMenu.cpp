@@ -17,7 +17,7 @@ void UReturnToMainMenu::MenuSetup()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController;
+		PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController.Get();
 		if (PlayerController)
 		{
 			FInputModeGameAndUI InputModeData;
@@ -69,7 +69,7 @@ void UReturnToMainMenu::OnDestroySession(bool bWasSuccessful)
 		}
 		else
 		{
-			PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController;
+			PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController.Get();
 			if (PlayerController)
 			{
 				PlayerController->ClientReturnToMainMenuWithTextReason(FText());
@@ -84,7 +84,7 @@ void UReturnToMainMenu::MenuTearDown()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController;
+		PlayerController = PlayerController == nullptr ? World->GetFirstPlayerController() : PlayerController.Get();
 		if (PlayerController)
 		{
 			FInputModeGameOnly InputModeData;
